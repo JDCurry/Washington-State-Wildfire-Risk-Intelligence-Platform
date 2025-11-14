@@ -105,7 +105,7 @@ with st.sidebar:
     st.subheader("Data Overlays")
     
     show_fema = st.checkbox("FEMA Disasters", value=True, help="Show federal disaster declarations")
-    show_county_labels = st.checkbox("County Labels", value=True, help="Display county names")
+    show_county_labels = st.checkbox("County Labels", value=False, help="Display county names on map")
     show_heatmap = st.checkbox("Risk Heatmap", value=False, help="Show risk intensity heatmap")
     
     if show_fema and fema_data is not None:
@@ -120,7 +120,7 @@ with st.sidebar:
     st.markdown("---")
     st.subheader("Advanced Options")
     
-    cluster_markers = st.checkbox("Cluster Markers", value=True, help="Group nearby markers")
+    cluster_markers = st.checkbox("Cluster FEMA Markers", value=True, help="Group nearby FEMA disaster markers (County markers are always visible)")
     show_legend = st.checkbox("Show Legend", value=True, help="Display map legend")
 
 # Apply filters
@@ -197,14 +197,8 @@ if show_heatmap and len(filtered_df) > 0:
     # For now, using a placeholder
     st.info("Heatmap layer requires county centroid coordinates. Feature coming soon!")
 
-# Add county markers with detailed popups
-if cluster_markers:
-    marker_cluster = plugins.MarkerCluster(name='County Risk Markers').add_to(m)
-    marker_parent = marker_cluster
-else:
-    marker_parent = m
-
 # Add county markers with detailed popups using GeoJSON centroids
+# Note: County markers are NOT clustered so all are always visible
 if geojson_data is not None:
     for _, row in filtered_df.iterrows():
         # Find matching feature in geojson to get centroid coordinates
@@ -284,13 +278,13 @@ if geojson_data is not None:
                 lat = float(feature['properties'].get('INTPTLAT', 47.5))
                 lon = float(feature['properties'].get('INTPTLON', -120.5))
                 
-                # Add to cluster or map directly
+                # Add to map directly (not cluster) so all counties are always visible
                 folium.Marker(
                     location=[lat, lon],
                     popup=folium.Popup(popup_html, max_width=400),
                     tooltip=f"{row['County']}: {row['climate_fire_risk_score']:.1f}",
                     icon=folium.Icon(color=color, icon=icon, prefix='glyphicon')
-                ).add_to(marker_parent)
+                ).add_to(m)  # Add to map directly, not marker_parent
                 
                 # Add county label if requested
                 if show_county_labels:

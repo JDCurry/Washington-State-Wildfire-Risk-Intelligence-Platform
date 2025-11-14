@@ -205,16 +205,24 @@ if analysis_type == "Correlation Analysis":
             st.metric("Correlation Coefficient", f"{correlation:.3f}")
         
         with col2:
-            # R-squared
+            # R-squared - ensure matching indices
             from scipy import stats
-            slope, intercept, r_value, p_value, std_err = stats.linregress(
-                filtered_df[primary_var].dropna(),
-                filtered_df[secondary_var].dropna()
-            )
-            st.metric("R² Value", f"{r_value**2:.3f}")
+            # Get common indices for both variables
+            valid_idx = filtered_df[[primary_var, secondary_var]].dropna().index
+            x_vals = filtered_df.loc[valid_idx, primary_var]
+            y_vals = filtered_df.loc[valid_idx, secondary_var]
+            
+            if len(x_vals) > 1:
+                slope, intercept, r_value, p_value, std_err = stats.linregress(x_vals, y_vals)
+                st.metric("R² Value", f"{r_value**2:.3f}")
+            else:
+                st.metric("R² Value", "N/A")
         
         with col3:
-            st.metric("P-value", f"{p_value:.4f}")
+            if len(x_vals) > 1:
+                st.metric("P-value", f"{p_value:.4f}")
+            else:
+                st.metric("P-value", "N/A")
 
 elif analysis_type == "Time Series Trends":
     st.header(" Time Series Analysis")
