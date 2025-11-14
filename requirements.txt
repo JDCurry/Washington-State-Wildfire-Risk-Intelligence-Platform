@@ -1,0 +1,25 @@
+# WA FireWatch - Python Dependencies
+# Washington State Wildfire Risk Intelligence Platform
+
+# Core Framework
+streamlit>=1.28.0
+streamlit-folium>=0.15.0
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Visualization
+plotly>=5.17.0
+folium>=0.14.0
+
+# Statistical Analysis
+scipy>=1.11.0
+
+# Date/Time Handling
+python-dateutil>=2.8.0
+
+# Optional but Recommended
+# openpyxl>=3.1.0  # For Excel export functionality
+# reportlab>=4.0.0  # For PDF generation
+# jinja2>=3.1.0    # For HTML report templates
