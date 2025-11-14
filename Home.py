@@ -13,10 +13,11 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
 import json
+import numpy as np
 
 # Page configuration
 st.set_page_config(
-    page_title="WA FireWatch - Home",
+    page_title="Washington State Wildfire Risk Intelligence Platform - Home",
     page_icon="🔥",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -110,8 +111,8 @@ except FileNotFoundError:
 # Header with branding
 col1, col2 = st.columns([3, 1])
 with col1:
-    st.title("🔥 WA FireWatch")
-    st.subheader("Washington State Wildfire Risk Intelligence Platform")
+    st.title("🔥 Washington State Wildfire Risk Intelligence Platform")
+    st.subheader("WA FireWatch")
     st.caption(f"Real-time risk analysis and mitigation planning • Updated {datetime.now().strftime('%B %d, %Y')}")
 
 with col2:
@@ -200,8 +201,8 @@ with col1:
             return 'background-color: #fff3e0'
         return ''
     
-    styled_df = top_counties.style.applymap(color_risk, subset=['Category'])
-    st.dataframe(styled_df, use_container_width=True, hide_index=True, height=400)
+    styled_df = top_counties.style.map(color_risk, subset=['Category'])
+    st.dataframe(styled_df, width='stretch', hide_index=True, height=400)
 
 with col2:
     # Risk distribution
@@ -221,7 +222,7 @@ with col2:
         margin=dict(l=20, r=20, t=30, b=20),
         annotations=[dict(text='Counties', x=0.5, y=0.5, font_size=14, showarrow=False)]
     )
-    st.plotly_chart(fig_risk, use_container_width=True)
+    st.plotly_chart(fig_risk, width='stretch')
     
     # Climate trends
     st.markdown("#### Climate Trends")
@@ -231,7 +232,7 @@ with col2:
         x=trend_counts.values,
         y=trend_counts.index,
         orientation='h',
-        marker=dict(color=['#d32f2f', '#f57c00', '#7cb342', '#1976d2'])
+        marker=dict(color=['#d32f2f' if t == 'Warming & Drying' else '#f57c00' if t == 'Warming' else '#1976d2' if t == 'Cooling' else '#7cb342' for t in trend_counts.index])
     )])
     
     fig_trend.update_layout(
@@ -241,7 +242,7 @@ with col2:
         xaxis_title="Counties",
         yaxis_title=""
     )
-    st.plotly_chart(fig_trend, use_container_width=True)
+    st.plotly_chart(fig_trend, width='stretch')
 
 st.markdown("---")
 
@@ -285,7 +286,7 @@ if fema_data is not None:
         height=400
     )
     
-    st.plotly_chart(fig_timeline, use_container_width=True)
+    st.plotly_chart(fig_timeline, width='stretch')
     
     # Recent disaster highlights
     col1, col2, col3 = st.columns(3)
@@ -415,11 +416,8 @@ with st.sidebar:
 st.markdown("---")
 st.markdown("""
     <div style='text-align: center; color: #666; font-size: 0.85rem;'>
-        <b>WA FireWatch</b> | Washington State Wildfire Risk Intelligence Platform<br>
+        <b>Washington State Wildfire Risk Intelligence Platform</b> (WA FireWatch)<br>
         Data Sources: NOAA Climate Normals | FEMA Declarations | USDA Forest Service WUI | U.S. Census Bureau<br>
         Last Updated: November 2025 | Version 2.0
     </div>
 """, unsafe_allow_html=True)
-
-# Import numpy for trend line
-import numpy as np

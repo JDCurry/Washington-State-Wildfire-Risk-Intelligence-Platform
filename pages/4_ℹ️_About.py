@@ -7,13 +7,13 @@ import streamlit as st
 import pandas as pd
 
 st.set_page_config(
-    page_title="WA FireWatch - About",
+    page_title="Washington State Wildfire Risk Intelligence Platform - About",
     page_icon="ℹ️",
     layout="wide"
 )
 
 # Header
-st.title("ℹ️ About WA FireWatch")
+st.title("ℹ️ About Washington State Wildfire Risk Intelligence Platform")
 st.markdown("Platform Overview, Methodology, and Technical Documentation")
 st.markdown("---")
 
@@ -35,10 +35,11 @@ with tab1:
         st.markdown("""
         ### Mission
         
-        **WA FireWatch** is Washington State's comprehensive wildfire risk intelligence platform, designed to support 
-        evidence-based decision-making for emergency managers, policymakers, and community stakeholders. The platform 
-        integrates climate data, historical fire records, demographic information, and wildland-urban interface analysis 
-        to provide actionable insights for wildfire mitigation and preparedness.
+        The **Washington State Wildfire Risk Intelligence Platform** (WA FireWatch) is Washington State's comprehensive 
+        wildfire risk intelligence system, designed to support evidence-based decision-making for emergency managers, 
+        policymakers, and community stakeholders. The platform integrates climate data, historical fire records, 
+        demographic information, and wildland-urban interface analysis to provide actionable insights for wildfire 
+        mitigation and preparedness.
         
         ### Key Capabilities
         
@@ -151,7 +152,7 @@ with tab2:
     st.header("Data Sources & Integration")
     
     st.markdown("""
-    WA FireWatch integrates multiple authoritative data sources to provide comprehensive wildfire risk assessment:
+    The Washington State Wildfire Risk Intelligence Platform integrates multiple authoritative data sources to provide comprehensive wildfire risk assessment:
     """)
     
     # Data source cards
@@ -331,8 +332,8 @@ with tab3:
     st.markdown("""
     ### Risk Assessment Framework
     
-    WA FireWatch employs a multi-factor risk scoring methodology that integrates climate, 
-    fire history, and demographic vulnerability into a comprehensive risk assessment.
+    The Washington State Wildfire Risk Intelligence Platform employs a multi-factor risk scoring methodology that 
+    integrates climate, fire history, and demographic vulnerability into a comprehensive risk assessment.
     """)
     
     st.subheader("🔢 Composite Risk Score Calculation")
@@ -575,8 +576,8 @@ with tab4:
     st.markdown("""
     ### Getting Started
     
-    WA FireWatch is designed for intuitive use by emergency management professionals, 
-    policymakers, and researchers. No GIS expertise required!
+    The Washington State Wildfire Risk Intelligence Platform is designed for intuitive use by emergency management 
+    professionals, policymakers, and researchers. No GIS expertise required!
     """)
     
     st.subheader("🏠 Home Dashboard")
@@ -855,13 +856,13 @@ with tab5:
     st.subheader("📜 Citation")
     
     st.code("""
-Curry, J. (2025). WA FireWatch: Washington State Wildfire Risk Intelligence Platform. 
+Curry, J. (2025). Washington State Wildfire Risk Intelligence Platform. 
 Washington State Emergency Management Division. https://wa.gov/firewatch
 
 BibTeX:
 @software{curry2025firewatch,
   author = {Curry, Josh},
-  title = {WA FireWatch: Washington State Wildfire Risk Intelligence Platform},
+  title = {Washington State Wildfire Risk Intelligence Platform},
   year = {2025},
   publisher = {Washington State Emergency Management Division},
   url = {https://wa.gov/firewatch}
@@ -876,11 +877,11 @@ BibTeX:
         st.markdown("""
         **Terms of Use**
         
-        WA FireWatch is provided for emergency management planning and research purposes. 
-        Users agree to:
+        The Washington State Wildfire Risk Intelligence Platform is provided for emergency management planning and 
+        research purposes. Users agree to:
         
         1. Use data responsibly and ethically
-        2. Cite WA FireWatch in publications and presentations
+        2. Cite the Washington State Wildfire Risk Intelligence Platform in publications and presentations
         3. Not use platform for commercial purposes without permission
         4. Respect data source attributions
         5. Report errors or concerns to platform administrators
@@ -889,8 +890,8 @@ BibTeX:
         
         ⚠️ **Important Notice:**
         
-        WA FireWatch provides risk assessment tools based on historical data and statistical 
-        modeling. Users should be aware that:
+        The Washington State Wildfire Risk Intelligence Platform provides risk assessment tools based on historical 
+        data and statistical modeling. Users should be aware that:
         
         - Risk scores are estimates, not guarantees
         - Local conditions may vary significantly
@@ -911,7 +912,7 @@ BibTeX:
         
         **Privacy**
         
-        WA FireWatch:
+        The Washington State Wildfire Risk Intelligence Platform:
         - Does not collect personal information
         - Uses anonymous usage analytics
         - Does not track individual users
@@ -960,7 +961,7 @@ BibTeX:
 st.markdown("---")
 st.markdown("""
     <div style='text-align: center; color: #666; font-size: 0.85rem; padding: 20px;'>
-        <b>WA FireWatch</b> | Washington State Wildfire Risk Intelligence Platform<br>
+        <b>Washington State Wildfire Risk Intelligence Platform</b><br>
         Version 2.0 | November 2025<br>
         Developed by Josh Curry for Washington State Emergency Management<br>
         <br>

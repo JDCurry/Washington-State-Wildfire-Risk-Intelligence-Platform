@@ -10,7 +10,7 @@ from datetime import datetime
 import io
 
 st.set_page_config(
-    page_title="WA FireWatch - Reports",
+    page_title="Washington State Wildfire Risk Intelligence Platform - Reports",
     page_icon="📄",
     layout="wide"
 )
@@ -363,7 +363,7 @@ elif report_type == "County Risk Assessment":
                     ))
                     
                     fig_gauge.update_layout(height=250)
-                    st.plotly_chart(fig_gauge, use_container_width=True)
+                    st.plotly_chart(fig_gauge, width="stretch")
                     
                     st.markdown("### Component Scores")
                     st.metric("Heat Stress", f"{county_data['heat_stress']:.1f}")
@@ -472,11 +472,11 @@ st.subheader("📤 Generate & Export Report")
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    if st.button("📄 Generate PDF", use_container_width=True):
+    if st.button("📄 Generate PDF", width="stretch"):
         st.info("📝 PDF generation requires additional setup. Export HTML version or download data instead.")
 
 with col2:
-    if st.button("📊 Export to Excel", use_container_width=True):
+    if st.button("📊 Export to Excel", width="stretch"):
         # Export filtered data
         if report_type == "County Risk Assessment" and selected_counties:
             export_df = df[df['County'].isin(selected_counties)]
@@ -493,11 +493,11 @@ with col2:
         )
 
 with col3:
-    if st.button("📧 Email Report", use_container_width=True):
+    if st.button("📧 Email Report", width="stretch"):
         st.info("📧 Email functionality requires SMTP configuration. Contact your administrator.")
 
 with col4:
-    if st.button("🔗 Share Link", use_container_width=True):
+    if st.button("🔗 Share Link", width="stretch"):
         st.info("🔗 Shareable links coming soon in the next platform update.")
 
 st.markdown("---")

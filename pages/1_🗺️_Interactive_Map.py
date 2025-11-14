@@ -11,7 +11,7 @@ from streamlit_folium import st_folium
 import json
 
 st.set_page_config(
-    page_title="WA FireWatch - Interactive Map",
+    page_title="Washington State Wildfire Risk Intelligence Platform - Interactive Map",
     page_icon="🗺️",
     layout="wide"
 )

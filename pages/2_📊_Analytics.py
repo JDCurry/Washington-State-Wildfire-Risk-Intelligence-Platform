@@ -13,7 +13,7 @@ from scipy import stats
 from datetime import datetime, timedelta
 
 st.set_page_config(
-    page_title="WA FireWatch - Analytics",
+    page_title="Washington State Wildfire Risk Intelligence Platform - Analytics",
     page_icon="📊",
     layout="wide"
 )
@@ -136,55 +136,85 @@ if analysis_type == "Correlation Analysis":
         xaxis_tickangle=-45
     )
     
-    st.plotly_chart(fig_corr, use_container_width=True)
+    st.plotly_chart(fig_corr, width="stretch")
     
     # Scatter plot with trend line
     st.subheader(f"Relationship: {primary_var.replace('_', ' ').title()} vs {secondary_var.replace('_', ' ').title()}")
     
-    # Calculate correlation
-    correlation = filtered_df[primary_var].corr(filtered_df[secondary_var])
-    
-    fig_scatter = px.scatter(
-        filtered_df,
-        x=primary_var,
-        y=secondary_var,
-        color='risk_category',
-        size='population',
-        hover_data=['County', 'climate_trend'],
-        trendline="ols",
-        color_discrete_map={
-            'Critical': '#8B0000',
-            'High': '#FF4500',
-            'Moderate': '#FFA500',
-            'Low': '#90EE90'
-        }
-    )
-    
-    fig_scatter.update_layout(
-        title=f"Correlation: {correlation:.3f}",
-        height=500,
-        xaxis_title=primary_var.replace('_', ' ').title(),
-        yaxis_title=secondary_var.replace('_', ' ').title()
-    )
-    
-    st.plotly_chart(fig_scatter, use_container_width=True)
-    
-    # Key insights
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        st.metric("Correlation Coefficient", f"{correlation:.3f}")
-    
-    with col2:
-        # R-squared
-        slope, intercept, r_value, p_value, std_err = stats.linregress(
-            filtered_df[primary_var].dropna(),
-            filtered_df[secondary_var].dropna()
+    # Check if variables are the same
+    if primary_var == secondary_var:
+        st.warning("⚠️ Please select different variables for X and Y axes to see correlation.")
+        st.info("💡 Tip: Choose two different variables from the sidebar to explore their relationship.")
+    else:
+        # Calculate correlation
+        correlation = filtered_df[primary_var].corr(filtered_df[secondary_var])
+        
+        fig_scatter = px.scatter(
+            filtered_df,
+            x=primary_var,
+            y=secondary_var,
+            color='risk_category',
+            size='population',
+            hover_data=['County', 'climate_trend'],
+            color_discrete_map={
+                'Critical': '#8B0000',
+                'High': '#FF4500',
+                'Moderate': '#FFA500',
+                'Low': '#90EE90'
+            }
         )
-        st.metric("R² Value", f"{r_value**2:.3f}")
-    
-    with col3:
-        st.metric("P-value", f"{p_value:.4f}")
+        
+        # Add manual trend line using numpy
+        if len(filtered_df) > 1:
+            try:
+                x_data = filtered_df[primary_var].dropna()
+                y_data = filtered_df[secondary_var].dropna()
+                
+                # Ensure we have matching indices
+                common_idx = x_data.index.intersection(y_data.index)
+                x_data = x_data.loc[common_idx]
+                y_data = y_data.loc[common_idx]
+                
+                if len(x_data) > 1 and len(y_data) > 1:
+                    z = np.polyfit(x_data, y_data, 1)
+                    p = np.poly1d(z)
+                    x_trend = np.linspace(x_data.min(), x_data.max(), 100)
+                    fig_scatter.add_trace(go.Scatter(
+                        x=x_trend,
+                        y=p(x_trend),
+                        mode='lines',
+                        name='Trend',
+                        line=dict(color='rgba(0,0,0,0.3)', width=2, dash='dash')
+                    ))
+            except Exception:
+                pass  # Silently skip trend line if calculation fails
+        
+        fig_scatter.update_layout(
+            title=f"Correlation: {correlation:.3f}",
+            height=500,
+            xaxis_title=primary_var.replace('_', ' ').title(),
+            yaxis_title=secondary_var.replace('_', ' ').title()
+        )
+        
+        st.plotly_chart(fig_scatter, width="stretch")
+        
+        # Key insights
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric("Correlation Coefficient", f"{correlation:.3f}")
+        
+        with col2:
+            # R-squared
+            from scipy import stats
+            slope, intercept, r_value, p_value, std_err = stats.linregress(
+                filtered_df[primary_var].dropna(),
+                filtered_df[secondary_var].dropna()
+            )
+            st.metric("R² Value", f"{r_value**2:.3f}")
+        
+        with col3:
+            st.metric("P-value", f"{p_value:.4f}")
 
 elif analysis_type == "Time Series Trends":
     st.header("📈 Time Series Analysis")
@@ -250,7 +280,7 @@ elif analysis_type == "Time Series Trends":
             hovermode='x unified'
         )
         
-        st.plotly_chart(fig_timeline, use_container_width=True)
+        st.plotly_chart(fig_timeline, width="stretch")
         
         # Projections
         st.subheader("🔮 5-Year Forecast")
@@ -274,7 +304,7 @@ elif analysis_type == "Time Series Trends":
             with col1:
                 st.dataframe(
                     projection_df.style.format({'Projected Disasters': '{:.0f}'}),
-                    use_container_width=True,
+                    width="stretch",
                     hide_index=True
                 )
             
@@ -313,7 +343,7 @@ elif analysis_type == "Time Series Trends":
         )
         
         fig_seasonal.update_layout(height=400)
-        st.plotly_chart(fig_seasonal, use_container_width=True)
+        st.plotly_chart(fig_seasonal, width="stretch")
         
         peak_month = monthly_disasters.nlargest(1, 'count')['month_name'].values[0]
         st.info(f"🔥 **Peak Fire Season:** {peak_month} with {monthly_disasters.nlargest(1, 'count')['count'].values[0]} historical declarations")
@@ -349,7 +379,7 @@ elif analysis_type == "Risk Factor Decomposition":
         height=400
     )
     
-    st.plotly_chart(fig_components, use_container_width=True)
+    st.plotly_chart(fig_components, width="stretch")
     
     # Component distribution by risk category
     st.subheader("Component Scores by Risk Category")
@@ -373,7 +403,7 @@ elif analysis_type == "Risk Factor Decomposition":
         showlegend=True
     )
     
-    st.plotly_chart(fig_box, use_container_width=True)
+    st.plotly_chart(fig_box, width="stretch")
     
     # County-specific breakdown
     st.subheader("County-Level Component Analysis")
@@ -405,7 +435,7 @@ elif analysis_type == "Risk Factor Decomposition":
         height=500
     )
     
-    st.plotly_chart(fig_radar, use_container_width=True)
+    st.plotly_chart(fig_radar, width="stretch")
     
     col1, col2 = st.columns(2)
     
@@ -498,7 +528,7 @@ elif analysis_type == "Predictive Modeling":
         xaxis_tickangle=-45
     )
     
-    st.plotly_chart(fig_changes, use_container_width=True)
+    st.plotly_chart(fig_changes, width="stretch")
     
     # Summary metrics
     col1, col2, col3, col4 = st.columns(4)
@@ -526,7 +556,7 @@ elif analysis_type == "Predictive Modeling":
     display_changes.columns = ['County', 'Current Risk', 'Projected Risk', 'Change', '% Change']
     display_changes = display_changes.round(2)
     
-    st.dataframe(display_changes, use_container_width=True, hide_index=True, height=400)
+    st.dataframe(display_changes, width="stretch", hide_index=True, height=400)
 
 elif analysis_type == "Comparative Analysis":
     st.header("⚖️ Comparative County Analysis")
@@ -574,7 +604,7 @@ elif analysis_type == "Comparative Analysis":
             title="Multi-County Risk Factor Comparison"
         )
         
-        st.plotly_chart(fig_compare, use_container_width=True)
+        st.plotly_chart(fig_compare, width="stretch")
         
         # Side-by-side metrics
         st.subheader("Key Metrics Comparison")
@@ -617,7 +647,7 @@ elif analysis_type == "Comparative Analysis":
         comparison_table = compare_df[comparison_vars].copy()
         comparison_table = comparison_table.round(2)
         
-        st.dataframe(comparison_table, use_container_width=True, hide_index=True)
+        st.dataframe(comparison_table, width="stretch", hide_index=True)
     
     else:
         st.warning("⚠️ Please select at least 2 counties to compare")
@@ -632,7 +662,7 @@ else:  # Statistical Summary
     summary_stats = filtered_df[['climate_fire_risk_score', 'heat_stress', 'drought_stress', 
                                  'fire_history_score', 'wui_exposure_score', 'population_at_risk']].describe()
     
-    st.dataframe(summary_stats.T.style.format("{:.2f}"), use_container_width=True)
+    st.dataframe(summary_stats.T.style.format("{:.2f}"), width="stretch")
     
     # Histograms
     st.subheader("Risk Score Distribution")
@@ -657,7 +687,7 @@ else:  # Statistical Summary
         height=400
     )
     
-    st.plotly_chart(fig_hist, use_container_width=True)
+    st.plotly_chart(fig_hist, width="stretch")
     
     # Box plots for all components
     st.subheader("Component Score Distributions")
@@ -679,7 +709,7 @@ else:  # Statistical Summary
         height=500
     )
     
-    st.plotly_chart(fig_boxes, use_container_width=True)
+    st.plotly_chart(fig_boxes, width="stretch")
     
     # Statistical tests
     st.subheader("Statistical Significance Tests")

@@ -20,6 +20,7 @@ scipy>=1.11.0
 python-dateutil>=2.8.0
 
 # Optional but Recommended
-# openpyxl>=3.1.0  # For Excel export functionality
-# reportlab>=4.0.0  # For PDF generation
-# jinja2>=3.1.0    # For HTML report templates
+# statsmodels>=0.14.0  # For advanced statistical modeling (not required)
+# openpyxl>=3.1.0      # For Excel export functionality
+# reportlab>=4.0.0     # For PDF generation
+# jinja2>=3.1.0        # For HTML report templates
