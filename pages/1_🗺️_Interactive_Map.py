@@ -204,103 +204,110 @@ if cluster_markers:
 else:
     marker_parent = m
 
-for _, row in filtered_df.iterrows():
-    # Determine marker color and icon based on risk
-    if row['risk_category'] == 'Critical':
-        color = 'darkred'
-        icon = 'fire'
-    elif row['risk_category'] == 'High':
-        color = 'red'
-        icon = 'warning-sign'
-    elif row['risk_category'] == 'Moderate':
-        color = 'orange'
-        icon = 'exclamation-sign'
-    else:
-        color = 'green'
-        icon = 'ok-sign'
-    
-    # Count FEMA disasters for this county
-    if fema_data is not None:
-        county_fema = fema_data[fema_data['County'] == row['County']]
-        fema_count = len(county_fema)
-        recent_fires = county_fema.nlargest(3, 'declarationDate')
-        fires_list = '<br>'.join([
-            f"• <b>{fire['declarationTitle']}</b> ({fire['declarationDate'].strftime('%Y-%m-%d')})"
-            for _, fire in recent_fires.iterrows()
-        ])
-    else:
-        fema_count = 0
-        fires_list = "No data available"
-    
-    # Create detailed popup
-    popup_html = f"""
-    <div style="font-family: Arial, sans-serif; width: 350px; max-height: 400px; overflow-y: auto;">
-        <div style="background: linear-gradient(135deg, {color} 0%, {color}dd 100%); 
-                    color: white; padding: 15px; margin: -10px -10px 10px -10px; border-radius: 5px 5px 0 0;">
-            <h3 style="margin: 0; font-size: 1.3rem;">{row['County']} County</h3>
-            <div style="font-size: 0.9rem; margin-top: 5px;">Risk Score: {row['climate_fire_risk_score']:.1f} | {row['risk_category']}</div>
-        </div>
-        
-        <div style="padding: 5px; color: #333;">
-            <h4 style="color: #1976d2; margin: 10px 0 5px 0; border-bottom: 2px solid #1976d2;">
-                Risk Assessment
-            </h4>
-            <table style="width: 100%; font-size: 0.9rem;">
-                <tr><td><b>Climate Trend:</b></td><td>{row['climate_trend']}</td></tr>
-                <tr><td><b>Heat Stress:</b></td><td>{row['heat_stress']:.1f}</td></tr>
-                <tr><td><b>Drought Stress:</b></td><td>{row['drought_stress']:.1f}</td></tr>
-                <tr><td><b>Fire History Score:</b></td><td>{row['fire_history_score']:.1f}</td></tr>
-                <tr><td><b>WUI Exposure:</b></td><td>{row['wui_exposure_pct']:.1f}%</td></tr>
-            </table>
-            
-            <h4 style="color: #d32f2f; margin: 15px 0 5px 0; border-bottom: 2px solid #d32f2f;">
-                Population Impact
-            </h4>
-            <table style="width: 100%; font-size: 0.9rem;">
-                <tr><td><b>Total Population:</b></td><td>{row['population']:,}</td></tr>
-                <tr><td><b>At Risk (WUI):</b></td><td>{row['population_at_risk']:,.0f}</td></tr>
-                <tr><td><b>% Interface:</b></td><td>{row['pct_interface']*100:.1f}%</td></tr>
-                <tr><td><b>% Intermix:</b></td><td>{row['pct_intermix']*100:.1f}%</td></tr>
-            </table>
-            
-            <h4 style="color: #f57c00; margin: 15px 0 5px 0; border-bottom: 2px solid #f57c00;">
-                Disaster History
-            </h4>
-            <div style="font-size: 0.9rem;">
-                <b>FEMA Declarations:</b> {fema_count}<br>
-                <b>NOAA Fire Events:</b> {row['Fire_Count']}<br>
-                <br>
-                <b>Recent Major Fires:</b><br>
-                {fires_list if fires_list != "No data available" else "<i>No recent disasters</i>"}
-            </div>
-        </div>
-    </div>
-    """
-    
-    # We need actual lat/lon - using approximate Washington center for demo
-    # In production, you'd have county centroids
-    lat = 47.5 + (hash(row['County']) % 1000) / 10000  # Placeholder
-    lon = -120.5 + (hash(row['County']) % 2000) / 10000  # Placeholder
-    
-    folium.Marker(
-        location=[lat, lon],
-        popup=folium.Popup(popup_html, max_width=400),
-        tooltip=f"{row['County']}: {row['climate_fire_risk_score']:.1f} ({row['risk_category']})",
-        icon=folium.Icon(color=color, icon=icon, prefix='glyphicon')
-    ).add_to(marker_parent)
-    
-    # Add county label if requested
-    if show_county_labels:
-        folium.Marker(
-            location=[lat, lon],
-            icon=folium.DivIcon(html=f"""
-                <div style="font-size: 10px; font-weight: bold; color: #333; 
-                            text-shadow: 1px 1px 2px white, -1px -1px 2px white;
-                            white-space: nowrap;">
-                    {row['County']}
+# Add county markers with detailed popups using GeoJSON centroids
+if geojson_data is not None:
+    for _, row in filtered_df.iterrows():
+        # Find matching feature in geojson to get centroid coordinates
+        for feature in geojson_data['features']:
+            if feature['properties']['GEOID'] == str(int(row['county_fips'])):
+                # Determine marker color and icon based on risk
+                if row['risk_category'] == 'Critical':
+                    color = 'darkred'
+                    icon = 'fire'
+                elif row['risk_category'] == 'High':
+                    color = 'red'
+                    icon = 'warning-sign'
+                elif row['risk_category'] == 'Moderate':
+                    color = 'orange'
+                    icon = 'exclamation-sign'
+                else:
+                    color = 'green'
+                    icon = 'ok-sign'
+                
+                # Count FEMA disasters for this county
+                if fema_data is not None:
+                    county_fema = fema_data[fema_data['County'] == row['County']]
+                    fema_count = len(county_fema)
+                    recent_fires = county_fema.nlargest(3, 'declarationDate')
+                    fires_list = '<br>'.join([
+                        f"• <b>{fire['declarationTitle']}</b> ({fire['declarationDate'].strftime('%Y-%m-%d')})"
+                        for _, fire in recent_fires.iterrows()
+                    ])
+                else:
+                    fema_count = 0
+                    fires_list = "No data available"
+                
+                # Create detailed popup
+                popup_html = f"""
+                <div style="font-family: Arial, sans-serif; width: 350px; max-height: 400px; overflow-y: auto;">
+                    <div style="background: linear-gradient(135deg, {color} 0%, {color}dd 100%); 
+                                color: white; padding: 15px; margin: -10px -10px 10px -10px; border-radius: 5px 5px 0 0;">
+                        <h3 style="margin: 0; font-size: 1.3rem;">{row['County']} County</h3>
+                        <div style="font-size: 0.9rem; margin-top: 5px;">Risk Score: {row['climate_fire_risk_score']:.1f} | {row['risk_category']}</div>
+                    </div>
+                    
+                    <div style="padding: 5px; color: #333;">
+                        <h4 style="color: #1976d2; margin: 10px 0 5px 0; border-bottom: 2px solid #1976d2;">
+                            Risk Assessment
+                        </h4>
+                        <table style="width: 100%; font-size: 0.9rem;">
+                            <tr><td><b>Climate Trend:</b></td><td>{row['climate_trend']}</td></tr>
+                            <tr><td><b>Heat Stress:</b></td><td>{row['heat_stress']:.1f}</td></tr>
+                            <tr><td><b>Drought Stress:</b></td><td>{row['drought_stress']:.1f}</td></tr>
+                            <tr><td><b>Fire History Score:</b></td><td>{row['fire_history_score']:.1f}</td></tr>
+                            <tr><td><b>WUI Exposure:</b></td><td>{row['wui_exposure_pct']:.1f}%</td></tr>
+                        </table>
+                        
+                        <h4 style="color: #d32f2f; margin: 15px 0 5px 0; border-bottom: 2px solid #d32f2f;">
+                            Federal Disasters: {fema_count}
+                        </h4>
+                        <table style="width: 100%; font-size: 0.9rem;">
+                            <tr><td><b>Population:</b></td><td>{row['population']:,}</td></tr>
+                            <tr><td><b>At Risk (WUI):</b></td><td>{row['population_at_risk']:,.0f}</td></tr>
+                            <tr><td><b>% Interface:</b></td><td>{row['pct_interface']*100:.1f}%</td></tr>
+                            <tr><td><b>% Intermix:</b></td><td>{row['pct_intermix']*100:.1f}%</td></tr>
+                        </table>
+                        
+                        <h4 style="color: #f57c00; margin: 15px 0 5px 0; border-bottom: 2px solid #f57c00;">
+                            Recent Major Fires
+                        </h4>
+                        <div style="font-size: 0.9rem;">
+                            <b>NOAA Fire Events:</b> {row['Fire_Count']}<br>
+                            <br>
+                            {fires_list}
+                        </div>
+                    </div>
                 </div>
-            """)
-        ).add_to(m)
+                """
+                
+                # Use polygon centroid from GeoJSON properties
+                lat = float(feature['properties'].get('INTPTLAT', 47.5))
+                lon = float(feature['properties'].get('INTPTLON', -120.5))
+                
+                # Add to cluster or map directly
+                folium.Marker(
+                    location=[lat, lon],
+                    popup=folium.Popup(popup_html, max_width=400),
+                    tooltip=f"{row['County']}: {row['climate_fire_risk_score']:.1f}",
+                    icon=folium.Icon(color=color, icon=icon, prefix='glyphicon')
+                ).add_to(marker_parent)
+                
+                # Add county label if requested
+                if show_county_labels:
+                    folium.Marker(
+                        location=[lat, lon],
+                        icon=folium.DivIcon(html=f"""
+                            <div style="font-size: 10px; font-weight: bold; color: #333; 
+                                        text-shadow: 1px 1px 2px white, -1px -1px 2px white;
+                                        white-space: nowrap;">
+                                {row['County']}
+                            </div>
+                        """)
+                    ).add_to(m)
+                
+                break  # Found the matching GeoJSON feature, move to next county
+else:
+    st.warning("County boundary data (GeoJSON) not found. Map markers will not be displayed.")
 
 # Add FEMA disaster markers
 if show_fema and fema_data is not None:

@@ -193,16 +193,7 @@ with col1:
     top_counties['population_at_risk'] = top_counties['population_at_risk'].apply(lambda x: f"{x:,.0f}")
     top_counties.columns = ['County', 'Risk Score', 'Category', 'Climate Trend', 'Pop. at Risk']
     
-    # Add color coding
-    def color_risk(val):
-        if val == 'Critical':
-            return 'background-color: #ffcdd2'
-        elif val == 'High':
-            return 'background-color: #fff3e0'
-        return ''
-    
-    styled_df = top_counties.style.map(color_risk, subset=['Category'])
-    st.dataframe(styled_df, width='stretch', hide_index=True, height=400)
+    st.dataframe(top_counties, width='stretch', hide_index=True, height=400)
 
 with col2:
     # Risk distribution
