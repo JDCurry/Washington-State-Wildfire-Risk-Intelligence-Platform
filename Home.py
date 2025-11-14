@@ -111,7 +111,7 @@ except FileNotFoundError:
 # Header with branding
 col1, col2 = st.columns([3, 1])
 with col1:
-    st.title("🔥 Washington State Wildfire Risk Intelligence Platform")
+    st.title("Washington State Wildfire Risk Intelligence Platform")
     st.subheader("WA FireWatch")
     st.caption(f"Real-time risk analysis and mitigation planning • Updated {datetime.now().strftime('%B %d, %Y')}")
 
@@ -127,7 +127,7 @@ with col2:
 st.markdown("---")
 
 # Executive Summary Metrics
-st.markdown("### 📊 Executive Summary")
+st.markdown("### Executive Summary")
 
 col1, col2, col3, col4, col5 = st.columns(5)
 
@@ -182,7 +182,7 @@ with col5:
 st.markdown("---")
 
 # Key Insights Section
-st.markdown("### 🎯 Key Insights & Priorities")
+st.markdown("### Key Insights & Priorities")
 
 col1, col2 = st.columns([2, 1])
 
@@ -209,11 +209,26 @@ with col2:
     st.markdown("#### Risk Distribution")
     risk_counts = df['risk_category'].value_counts()
     
+    # Define proper color mapping
+    color_map = {
+        'Critical': '#8B0000',
+        'High': '#d32f2f',
+        'Moderate': '#FFA500',
+        'Low': '#90EE90'
+    }
+    
+    # Create ordered list matching the color map
+    ordered_categories = ['Critical', 'High', 'Moderate', 'Low']
+    colors = [color_map[cat] for cat in ordered_categories if cat in risk_counts.index]
+    labels = [cat for cat in ordered_categories if cat in risk_counts.index]
+    values = [risk_counts[cat] for cat in ordered_categories if cat in risk_counts.index]
+    
     fig_risk = go.Figure(data=[go.Pie(
-        labels=risk_counts.index,
-        values=risk_counts.values,
-        marker=dict(colors=['#8B0000', '#FF4500', '#FFA500', '#90EE90']),
-        hole=0.4
+        labels=labels,
+        values=values,
+        marker=dict(colors=colors),
+        hole=0.4,
+        textfont=dict(size=14, color='white')
     )])
     
     fig_risk.update_layout(
@@ -247,7 +262,7 @@ with col2:
 st.markdown("---")
 
 # Historical Trends
-st.markdown("### 📈 Historical Disaster Trends")
+st.markdown("### Historical Disaster Trends")
 
 if fema_data is not None:
     # Disasters by year
@@ -327,7 +342,7 @@ if fema_data is not None:
 st.markdown("---")
 
 # Action Items
-st.markdown("### 🎯 Recommended Actions")
+st.markdown("### Recommended Actions")
 
 col1, col2 = st.columns(2)
 
@@ -356,7 +371,7 @@ with col2:
 st.markdown("---")
 
 # Navigation
-st.markdown("### 🗺️ Platform Navigation")
+st.markdown("### Platform Navigation")
 
 col1, col2, col3, col4 = st.columns(4)
 
@@ -376,7 +391,7 @@ st.markdown("---")
 
 # Sidebar
 with st.sidebar:
-    st.markdown("### 🔥 WA FireWatch")
+    st.markdown("### WA FireWatch")
     st.markdown("**Wildfire Risk Intelligence**")
     st.markdown("---")
     

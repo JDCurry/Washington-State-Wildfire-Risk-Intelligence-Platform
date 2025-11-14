@@ -44,7 +44,7 @@ st.markdown("---")
 
 # Sidebar - Analysis Options
 with st.sidebar:
-    st.header("🔬 Analysis Options")
+    st.header(" Analysis Options")
     
     analysis_type = st.selectbox(
         "Primary Analysis",
@@ -104,7 +104,7 @@ if risk_filter:
 
 # Main content based on analysis type
 if analysis_type == "Correlation Analysis":
-    st.header("🔗 Correlation Analysis")
+    st.header(" Correlation Analysis")
     st.markdown("Exploring relationships between risk factors")
     
     # Correlation matrix
@@ -217,7 +217,7 @@ if analysis_type == "Correlation Analysis":
             st.metric("P-value", f"{p_value:.4f}")
 
 elif analysis_type == "Time Series Trends":
-    st.header("📈 Time Series Analysis")
+    st.header(" Time Series Analysis")
     st.markdown("Historical trends and future projections")
     
     if fema_data is not None:
@@ -283,7 +283,7 @@ elif analysis_type == "Time Series Trends":
         st.plotly_chart(fig_timeline, width="stretch")
         
         # Projections
-        st.subheader("🔮 5-Year Forecast")
+        st.subheader(" 5-Year Forecast")
         
         if len(yearly_data) >= 5:
             # Simple linear regression for projection
@@ -323,7 +323,7 @@ elif analysis_type == "Time Series Trends":
                 )
         
         # Seasonal patterns
-        st.subheader("📅 Seasonal Patterns")
+        st.subheader(" Seasonal Patterns")
         
         fema_data['month'] = fema_data['declarationDate'].dt.month
         monthly_disasters = fema_data.groupby('month').size().reset_index(name='count')
@@ -349,7 +349,7 @@ elif analysis_type == "Time Series Trends":
         st.info(f"🔥 **Peak Fire Season:** {peak_month} with {monthly_disasters.nlargest(1, 'count')['count'].values[0]} historical declarations")
 
 elif analysis_type == "Risk Factor Decomposition":
-    st.header("🧩 Risk Factor Decomposition")
+    st.header(" Risk Factor Decomposition")
     st.markdown("Breaking down composite risk scores into components")
     
     # Component contribution
@@ -559,7 +559,7 @@ elif analysis_type == "Predictive Modeling":
     st.dataframe(display_changes, width="stretch", hide_index=True, height=400)
 
 elif analysis_type == "Comparative Analysis":
-    st.header("⚖️ Comparative County Analysis")
+    st.header(" Comparative County Analysis")
     st.markdown("Side-by-side comparison of risk factors")
     
     # County selection
@@ -653,7 +653,7 @@ elif analysis_type == "Comparative Analysis":
         st.warning("⚠️ Please select at least 2 counties to compare")
 
 else:  # Statistical Summary
-    st.header("📊 Statistical Summary")
+    st.header(" Statistical Summary")
     st.markdown("Comprehensive statistical overview of risk factors")
     
     st.subheader("Distribution Statistics")
@@ -735,7 +735,7 @@ else:  # Statistical Summary
 st.markdown("---")
 
 # Export analytics
-st.subheader("💾 Export Analysis Results")
+st.subheader(" Export Analysis Results")
 
 col1, col2, col3 = st.columns(3)
 

@@ -43,25 +43,25 @@ with tab1:
         
         ### Key Capabilities
         
-        #### 🗺️ Interactive Risk Mapping
+        #### Interactive Risk Mapping
         - Multi-layer visualization of wildfire risk factors
         - County-level risk scoring and classification
         - Historical disaster overlay
         - Real-time filtering and analysis
         
-        #### 📊 Advanced Analytics
+        #### Advanced Analytics
         - Statistical analysis and correlations
         - Time series trend identification
         - Predictive modeling and projections
         - Comparative county analysis
         
-        #### 📄 Report Generation
+        #### Report Generation
         - Executive summaries for leadership
         - Detailed county assessments
         - Regional comparative analysis
         - Custom report builder
         
-        #### 📈 Decision Support
+        #### Decision Support
         - Risk prioritization tools
         - Resource allocation guidance
         - Mitigation planning support
@@ -448,7 +448,7 @@ with tab3:
         and difficulty of evacuation/defense.
         """)
     
-    st.subheader("🎯 Risk Categories")
+    st.subheader(" Risk Categories")
     
     st.markdown("""
     Counties are classified into four risk categories based on composite scores:

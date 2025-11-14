@@ -40,7 +40,7 @@ st.markdown("---")
 
 # Sidebar - Report Configuration
 with st.sidebar:
-    st.header("📋 Report Configuration")
+    st.header(" Report Configuration")
     
     report_type = st.selectbox(
         "Report Type",
@@ -108,7 +108,7 @@ with st.sidebar:
 
 # Main content area
 if report_type == "Executive Summary":
-    st.header("📊 Executive Summary Report")
+    st.header(" Executive Summary Report")
     st.markdown("High-level overview for leadership and stakeholders")
     
     # Preview

@@ -32,14 +32,18 @@ def load_fema_data():
         return None
 
 @st.cache_data
-def create_geojson():
-    """Create simplified GeoJSON for Washington counties"""
-    # This is a placeholder - in production you'd load actual county boundaries
-    # For now, we'll work with point data
-    return None
+def load_geojson():
+    """Load Washington counties GeoJSON"""
+    try:
+        with open('data/wa_counties.geojson', 'r') as f:
+            geojson = json.load(f)
+        return geojson
+    except FileNotFoundError:
+        return None
 
 df = load_data()
 fema_data = load_fema_data()
+geojson_data = load_geojson()
 
 # Header
 st.title("🗺️ Interactive Wildfire Risk Map")
@@ -48,7 +52,7 @@ st.markdown("---")
 
 # Sidebar controls
 with st.sidebar:
-    st.header("🎛️ Map Controls")
+    st.header(" Map Controls")
     
     st.subheader("Base Layer")
     base_layer = st.selectbox(
@@ -169,11 +173,29 @@ m = folium.Map(
     attr='WA FireWatch'
 )
 
+# Add choropleth layer for county boundaries
+if geojson_data is not None:
+    folium.Choropleth(
+        geo_data=geojson_data,
+        name='County Risk Levels',
+        data=filtered_df,
+        columns=['county_fips', 'climate_fire_risk_score'],
+        key_on='feature.properties.GEOID',
+        fill_color='YlOrRd',
+        fill_opacity=0.6,
+        line_opacity=0.8,
+        line_weight=2,
+        line_color='white',
+        legend_name='Climate-Fire Risk Score',
+        nan_fill_color='lightgray',
+        nan_fill_opacity=0.2
+    ).add_to(m)
+
 # Add heatmap layer if requested
 if show_heatmap and len(filtered_df) > 0:
     # Create heatmap data - we'd need lat/lon for counties
     # For now, using a placeholder
-    st.info("💡 Heatmap layer requires county centroid coordinates. Feature coming soon!")
+    st.info("Heatmap layer requires county centroid coordinates. Feature coming soon!")
 
 # Add county markers with detailed popups
 if cluster_markers:
@@ -219,9 +241,9 @@ for _, row in filtered_df.iterrows():
             <div style="font-size: 0.9rem; margin-top: 5px;">Risk Score: {row['climate_fire_risk_score']:.1f} | {row['risk_category']}</div>
         </div>
         
-        <div style="padding: 5px;">
+        <div style="padding: 5px; color: #333;">
             <h4 style="color: #1976d2; margin: 10px 0 5px 0; border-bottom: 2px solid #1976d2;">
-                📊 Risk Assessment
+                Risk Assessment
             </h4>
             <table style="width: 100%; font-size: 0.9rem;">
                 <tr><td><b>Climate Trend:</b></td><td>{row['climate_trend']}</td></tr>
@@ -232,7 +254,7 @@ for _, row in filtered_df.iterrows():
             </table>
             
             <h4 style="color: #d32f2f; margin: 15px 0 5px 0; border-bottom: 2px solid #d32f2f;">
-                👥 Population Impact
+                Population Impact
             </h4>
             <table style="width: 100%; font-size: 0.9rem;">
                 <tr><td><b>Total Population:</b></td><td>{row['population']:,}</td></tr>
@@ -242,7 +264,7 @@ for _, row in filtered_df.iterrows():
             </table>
             
             <h4 style="color: #f57c00; margin: 15px 0 5px 0; border-bottom: 2px solid #f57c00;">
-                🔥 Disaster History
+                Disaster History
             </h4>
             <div style="font-size: 0.9rem;">
                 <b>FEMA Declarations:</b> {fema_count}<br>
@@ -299,7 +321,7 @@ if show_fema and fema_data is not None:
         popup_html = f"""
         <div style="font-family: Arial; width: 280px;">
             <div style="background: #c62828; color: white; padding: 10px; margin: -10px -10px 10px -10px;">
-                <h4 style="margin: 0;">🏛️ FEMA Disaster</h4>
+                <h4 style="margin: 0; color: white;">FEMA Disaster</h4>
             </div>
             <b>{row['declarationTitle']}</b><br>
             <b>County:</b> {row['County']}<br>
@@ -322,21 +344,25 @@ if show_fema and fema_data is not None:
             weight=2
         ).add_to(fema_parent)
 
-# Add legend if requested
+# Add improved legend if requested
 if show_legend:
     legend_html = '''
     <div style="position: fixed; 
-                bottom: 50px; right: 50px; width: 200px; 
-                background-color: white; border:2px solid grey; z-index:9999; 
-                font-size:12px; padding: 10px; border-radius: 5px;
-                box-shadow: 0 0 15px rgba(0,0,0,0.2);">
-        <h4 style="margin: 0 0 10px 0;">Risk Categories</h4>
-        <p style="margin: 5px 0;"><span style="color: darkred;">⬤</span> Critical (>65)</p>
-        <p style="margin: 5px 0;"><span style="color: red;">⬤</span> High (55-65)</p>
-        <p style="margin: 5px 0;"><span style="color: orange;">⬤</span> Moderate (45-55)</p>
-        <p style="margin: 5px 0;"><span style="color: green;">⬤</span> Low (<45)</p>
-        <hr style="margin: 8px 0;">
-        <p style="margin: 5px 0;"><span style="color: #c62828;">●</span> FEMA Disaster</p>
+                bottom: 60px; left: 10px; width: 180px; 
+                background-color: rgba(255, 255, 255, 0.95); 
+                border: 2px solid #333; 
+                z-index:9999; 
+                font-size:12px; 
+                padding: 12px; 
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+        <h4 style="margin: 0 0 8px 0; color: #333; font-size: 13px; border-bottom: 2px solid #333; padding-bottom: 4px;">Risk Categories</h4>
+        <p style="margin: 4px 0; color: #333;"><span style="color: #8B0000; font-size: 16px;">■</span> Critical (&gt;65)</p>
+        <p style="margin: 4px 0; color: #333;"><span style="color: #d32f2f; font-size: 16px;">■</span> High (55-65)</p>
+        <p style="margin: 4px 0; color: #333;"><span style="color: #FFA500; font-size: 16px;">■</span> Moderate (45-55)</p>
+        <p style="margin: 4px 0; color: #333;"><span style="color: #90EE90; font-size: 16px;">■</span> Low (&lt;45)</p>
+        <hr style="margin: 6px 0; border-color: #666;">
+        <p style="margin: 4px 0; color: #333;"><span style="color: #c62828; font-size: 14px;">●</span> FEMA Disaster</p>
     </div>
     '''
     m.get_root().html.add_child(folium.Element(legend_html))
@@ -353,7 +379,7 @@ st.markdown("---")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("📍 Geographic Insights")
+    st.subheader(" Geographic Insights")
     
     # Eastern vs Western Washington
     eastern_counties = ['SPOKANE', 'YAKIMA', 'BENTON', 'FRANKLIN', 'WALLA WALLA', 'GRANT', 'CHELAN', 'DOUGLAS', 'OKANOGAN']
@@ -373,7 +399,7 @@ with col1:
     """)
 
 with col2:
-    st.subheader("🎯 Filtered View Analysis")
+    st.subheader(" Filtered View Analysis")
     
     if len(filtered_df) > 0:
         st.markdown(f"""
@@ -390,7 +416,7 @@ with col2:
 st.markdown("---")
 
 # Export options
-st.subheader("💾 Export Current View")
+st.subheader(" Export Current View")
 
 col1, col2, col3 = st.columns(3)
 
